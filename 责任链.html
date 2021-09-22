@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+
+class Middleware {
+  constructor() {
+    this.$cache = []
+    this.$middlewares = []
+  }
+
+  // 注册中间件
+  use() {
+    [...arguments].forEach(item => {
+      if (typeof item === 'function') {
+        this.$cache.push(item)
+      }
+    })
+    return this
+  }
+
+  /**
+   * 每个中间件只有两个形参 第一是传进来的参数 第二个是调用下一个中间件的函数
+   * 中间件的执行顺序是根据你注册中间件的顺序来去调用的 
+   */
+  next(params) {
+    if (this.$middlewares.length) {
+      const ware = this.$middlewares.shift()
+      ware.call(this, params, this.next.bind(this))
+    }
+  }
+  
+  execute(params) {
+    this.$middlewares = this.$cache.map(fn => {  // 复制一份
+      return fn;
+    });
+    this.next(params)
+  }
+
+}
+
+
+const middleware = new Middleware()
+
+function transform(options, next) {
+  console.log('before', options.data);
+  options.data.age = Number(options.data.age)
+  console.log('this', this)
+  next(options); // 通过验证
+}
+
+function validate(options, next) {
+  console.log('validate', options.data);
+  next(options); // 通过验证
+}
+
+function send(options, next) {
+  setTimeout(function () { // 模拟异步
+    console.log('send', options.data);
+    next();
+  }, 100);
+}
+
+middleware.use(transform).use(validate).use(send)
+middleware.execute({ data: { name: 'cookie', age: '20' } });
+
+
+  </script>
+</body>
+</html>
