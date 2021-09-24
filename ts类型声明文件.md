@@ -124,3 +124,8 @@ G[0] = a
 `implements 与 extends 的区别`
 extends, 子类会继承父类的所有属性和方法。
 implements，使用implements关键字的类将需要实现需要实现的类的所有属性和方法。
+
+
+`unknown, any的区别`
+任何类型的值都可以赋值给any 或者unknow
+any类型的值可以赋值给任何类型的变量;unknown类型的值只能给unknown和any类型的变量
