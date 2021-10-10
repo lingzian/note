@@ -102,3 +102,101 @@ hoc 高阶组件
 类继承
 
 ...
+
+
+
+` react的优势在哪里`
+
+ react 是一个库 用于构建视图 没有一整套解决方案（每次创建项目react-dom要另外引入）
+
+ react-router react-redux ReactDOM(ReactDOM.render接受react.creatElemnt返回来的虚拟dom 渲染成真实dom) 由社区开发  所以在选型上麻烦
+
+ 用react的人厉害的特别厉害 差的特别差
+
+ react考验问题的解决方案
+
+
+
+` jsx映射虚拟Dom的原理（为什么react会选择使用jsx）`
+
+ react团队觉得template不好
+
+ jsx可以把js写到html（js的一个扩展）  不想用指令  逻辑清晰 （react觉得）实际上react.creatElemnt(type,props,...children)的语法糖
+
+ 模板 template 之能写html  与逻辑分离
+
+
+ jsx最终通过 babel 编译为 react.creatElemnt(type,props,...children) ('div', 属性, 子节点)  jsx就是react.creatElemnt()的语法糖
+ （语法糖就是把复杂的方法组装成一个简单的方法提供使用）
+
+
+ 编译为react.creatElemnt(type,props,...children)  数据组装 再根据子节点在调用react.creatElemnt(type,props,...children)组装数据
+
+
+
+
+ react 17 jsx转换不会将jsx转换为react.createElement,而是自动从react的package中引入新的入口函数并调用，即转化为浏览器能理解的js（所以在项目中无需引入react）
+
+
+
+
+` Hook`
+
+ hook: 写法简便 业务逻辑容易拆分 直观  符合组件设计思想  函数是编程的范式  (函数组件有了状态)
+ class： 要继承react.component 有生命周期  组件之间服用状态很难  逻辑复杂，嵌套地狱（同一个生命周期写了很多逻辑 componentDidMount并不能拆分）
+        this不直观  在组件里面一般直观this指向class 但是在function()里面this并不指向class 要用箭头函数
+
+hook原理：（例如函数是无状态的但是usestate能记住上一次的结果） React第一次渲染函数组件时，它同时会创建一个对象与之共存，该对象是该组件实例的定制对象，而不是全局对象。只要组件存在于DOM中，这个组件的对象就会一直存在。
+React有能力在调用每个组件之前做一些设置，这就是它设置这个状态的时候。
+
+其中做的一件事设置 Hooks 数组。 它开始是空的, 每次调用一个hook时，React 都会向该数组添加该 hook。
+function AudioPlayer() {
+        const [volume, setVolume] = useState(80);
+        const [position, setPosition] = useState(0);
+        const [isPlaying, setPlaying] = useState(false);
+      
+        .....
+      }
+      因为它调用useState 3次，React 会在第一次渲染时将这三个 hook 放入 Hooks 数组中。
+      
+      下次渲染时，同样的3个hooks以相同的顺序被调用，所以React可以查看它的数组，并发现已经在位置0有一个useState hook ，所以React不会创建一个新状态，而是返回现有状态。
+
+
+
+
+
+
+`虚拟DOM `
+
+是Dom的抽象层 一个描述Dom的js对象   （先更新虚拟dom => 再跟新dom 减少dom的操作）js对象处理起来比dom对象快，通过diff算法对比新旧vdom的差异，可以批量最小化执行dom操作
+Fiber就是通过对象记录组件上需要做或者已经完成的更新，
+
+
+
+
+
+
+
+
+`pingou-web : `
+
+framework7: webpack自己配置，没有优化，启动速度慢。 可配置异步路由
+
+typescript:
+
+apicloud:
+
+umi-request：是基于 fetch 封装的开源 http 请求库 
+URL 参数自动序列化
+POST 数据提交方式简化
+Response 返回处理简化
+请求超时处理
+请求缓存支持
+
+
+dva:
+
+pixi:
+
+fundebug：异常监控
+
