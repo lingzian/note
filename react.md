@@ -102,3 +102,7 @@ hoc 高阶组件
 类继承
 
 ...
+
+
+`react中 useEffect 和 useLayoutEffect相同和区别`
+不同点：useEffect 是在dom更新后异步执行 。useLayoutEffect 是在dom更新前同步执行（有可能会阻塞dom渲染），执行完再更新dom。useLayoutEffect可以解决更新dom时候屏幕闪烁的问题
