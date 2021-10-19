@@ -355,3 +355,9 @@ Webpack 的运行流程是一个串行的过程，从启动到结束会依次执
 
 `使用webpack开发时，你用过哪些可以提高效率的插件？`
 HotModuleReplacementPlugin   模块热替换 (css 改变 无感知更新页面)
+
+
+
+`webpack 中 loader 和 plugin 的区别是什么`
+loader，它是一个转换器，将A文件进行编译成B文件，比如：将A.less转换为A.css，单纯的文件转换过程。
+plugin是一个扩展器，它丰富了webpack本身，针对是loader结束后，webpack打包的整个过程，它并不直接操作文件，而是基于事件机制工作，会监听webpack打包过程中的某些节点，执行广泛的任务(打包优化、文件管理、环境注入等)
