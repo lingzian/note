@@ -180,25 +180,3 @@ Fiber就是通过对象记录组件上需要做或者已经完成的更新，
 
 
 
-`pingou-web : `
-
-framework7: webpack自己配置，没有优化，启动速度慢。 可配置异步路由
-
-typescript:
-
-apicloud:
-
-umi-request：是基于 fetch 封装的开源 http 请求库 
-URL 参数自动序列化
-POST 数据提交方式简化
-Response 返回处理简化
-请求超时处理
-请求缓存支持
-
-
-dva:
-
-pixi:
-
-fundebug：异常监控
-

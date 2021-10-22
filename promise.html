@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    function MyPromise(fn) {
+     var res = null,
+　　　　callback = null,
+           nextResolve = null;
+     function resolve(val) {
+         if(typeof(callback) === 'function'){
+             res = callback(val);
+         }
+         nextResolve(res);
+     }
+ 
+     function reject(val){
+         if(typeof(callback) === 'function'){
+             res = callback(val);
+         }
+         nextResolve
+     }
+      
+     this.then = function (cb) {
+         callback = cb;
+             return new MyPromise(function(resolve,reject){
+                 nextResolve = resolve;
+             })
+     };
+ 
+     fn(resolve,reject);
+ }
+function http(url){
+    return new MyPromise(function(resolve,reject){
+        setTimeout(function(){
+            resolve(url);
+        },1000)
+    })
+}
+
+http('www.123.com').then(function(res){
+    console.log(res)
+    return 123132;
+}).then(function(res){
+    console.log('asdad',res)
+ })
+
+
+
+
+
+
+ function Promise () {
+   let callBack = null
+   function resolve(val) {
+    if(typeof callBack == 'function') {
+      callBack(val)
+    }
+   }
+   function reject() {
+     
+   }
+ }
+
+  </script>
+</body>
+</html>

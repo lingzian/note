@@ -14,3 +14,13 @@ Array.isArray()用来判断对象是否为数组
 
 nstanceof 与 isArray当检测Array实例时，Array.isArray 优于 instanceof ，因为 Array.isArray 可以检测出 iframes
 Array.isArray() 与 Object.prototype.toString.call()Array.isArray()是ES5新增的方法，当不存在 Array.isArray() ，可以用 Object.prototype.toString.call() 实现
+
+
+`闭包的实现原理和作用`
+闭包的概念：指有权访问另一个函数作用域中的变量的函数，一般情况就是在一个函数中包含另一个函数。
+闭包的作用：访问函数内部变量、保持函数在环境中一直存在，不会被垃圾回收机制处理
+3、闭包的优点：
+方便调用上下文中声明的局部变量
+逻辑紧密，可以在一个函数中再创建个函数，避免了传参的问题
+4、闭包的缺点：
+因为使用闭包，可以使函数在执行完后不被销毁，保留在内存中，如果大量使用闭包就会造成内存泄露，内存消耗很大

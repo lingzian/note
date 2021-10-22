@@ -71,6 +71,37 @@ middleware.use(transform).use(validate).use(send)
 middleware.execute({ data: { name: 'cookie', age: '20' } });
 
 
+
+
+
+// 发乎订阅
+class Oberver {
+  // 定义一个事件容器
+  event = {}
+
+  subscribe (type, fn) {
+    // 消息类型不存在
+    if (typeof this.event[type] === 'undefined') {
+      this.event[type] = [fn]
+    // 存在，将fn推入事件队列
+    } else {
+      this.event[type].push(fn)
+    }
+  }
+
+  publish (type, args = {}) {
+    // 消息类型没人订阅
+    if (!this.event[type]) return
+    let i = 0
+    let len = this.event[type].length
+    for (; i < len; i++) {
+      // 依次执行事件队列（发布）
+      this.event[type][i].call(this, {type, args})
+    }
+  }
+}
+
+
   </script>
 </body>
 </html>
