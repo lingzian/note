@@ -14,3 +14,22 @@
 `响应式原理`
 defineProperty 实现的数据劫持，getter 收集依赖，setter 调用更新回调.
 每个组件实例都对应一个 watcher 实例，它会在组件渲染的过程中解析每个指令或者模板语法（三种watcher,data,watch,computed），生成更新函数绑定在watcher上，总的来说就是把“接触”过的数据记录为依赖。之后当依赖项的 setter 触发时，会通知 watcher，从而使它关联的组件重新渲染。
+
+
+`请你阐述一下对vue虚拟dom的理解`
+- 虚拟dom本质上就是一个对dom描述的普通的JS对象在vue中，每个组件都有一个render函数，每个render函数都会返回一个虚拟dom树，这也就意味着每个组件都对应一棵虚拟DOM树
+
+- 为什么需要虚拟dom？
+在更新量大的时候直接操作dom带来大量的性能损耗，从而就会极大的降低渲染效率，用虚拟节点的话尽量减少dom操作会比较快
+
+- 虚拟dom是如何转换为真实dom的？（diff算法步骤）
+每个组件在编译的时候把模板转换为渲染函数，然后根据dom生成虚拟节点，然后再根据虚拟节点生成真实dom
+在数据更新的时候也会重新调用render函数创建虚拟dom树，用新旧虚拟dom树比较，vue会找到最小更新量，然后更新必要的虚拟dom节点，最后修改对应的真实dom。
+
+
+
+`Proxy与Object.defineProperty的优劣对比?`
+Proxy可以直接监听对象而非属性
+Proxy可以直接监听数组的变化
+Proxy有多达13种拦截方法,不限于apply、ownKeys、deleteProperty、has等等是Object.defineProperty不具备的
+Proxy返回的是一个新对象,我们可以只操作新的对象达到目的,而Object.defineProperty只能遍历对象属性直接修改
