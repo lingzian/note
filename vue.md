@@ -26,6 +26,8 @@ defineProperty 实现的数据劫持，getter 收集依赖，setter 调用更新
 每个组件在编译的时候把模板转换为渲染函数，然后根据dom生成虚拟节点，然后再根据虚拟节点生成真实dom
 在数据更新的时候也会重新调用render函数创建虚拟dom树，用新旧虚拟dom树比较，vue会找到最小更新量，然后更新必要的虚拟dom节点，最后修改对应的真实dom。
 
+render -> vnode -> 新旧节点比较 -> patch->真实dom
+
 
 
 `Proxy与Object.defineProperty的优劣对比?`
@@ -33,3 +35,90 @@ Proxy可以直接监听对象而非属性
 Proxy可以直接监听数组的变化
 Proxy有多达13种拦截方法,不限于apply、ownKeys、deleteProperty、has等等是Object.defineProperty不具备的
 Proxy返回的是一个新对象,我们可以只操作新的对象达到目的,而Object.defineProperty只能遍历对象属性直接修改
+
+
+`$set原理`
+如果是数组就调用内置封装的八个函数方法 splice。
+如果是对象属性就重新object.defineProerty, 然后调用更新函数
+
+
+`Keep-alive`
+Vue 的缓存机制并不是直接存储 DOM 结构，而是将 DOM 节点抽象成了一个个 VNode节点。
+因此，Vue 的 keep-alive 缓存也是基于 VNode节点 而不是直接存储 DOM 节点。
+
+将需要缓存的VNode节点保存在this.cache中，在render时，如果VNode的name符合在缓存条件（可以用include以及exclude控制），则会从this.cache中取出之前缓存的VNode实例进行渲染。
+
+`使用过 Vue SSR 吗？说说 SSR`
+SSR 也就是服务端渲染，也就是将 Vue 在客户端把标签渲染成 HTML 的工作放在服务端完成，然后再把 html 直接返回给客户端。
+优点：
+SSR 有着更好的 SEO、并且首屏加载速度更快
+缺点：
+开发条件会受到限制，服务器端渲染只支持 beforeCreate 和 created 两个钩子，当我们需要一些外部扩展库时需要特殊处理，服务端渲染应用程序也需要处于 Node.js 的运行环境。
+服务器会有更大的负载需求
+
+
+`vue实例挂载的过程发生了什么`
+new Vue的时候调用会调用_init方法
+    定义 $set、 $get 、$delete、$watch 等方法
+    定义 $on、$off、$emit、$off 等事件
+    定义 _update、$forceUpdate、$destroy生命周期
+
+调用$mount进行页面的挂载
+挂载的时候主要是通过mountComponent方法
+定义updateComponent更新函数
+执行render生成虚拟DOM
+_update将虚拟DOM生成真实DOM结构，并且渲染到页面中
+
+
+
+`Vue常用的修饰符有哪些？有什么应用场景？`
+vue中修饰符分为以下五种：
+表单修饰符
+事件修饰符
+鼠标按键修饰符
+键值修饰符
+v-bind修饰符
+
+lazy
+在我们填完信息，光标离开标签的时候，才会将值赋予给value，也就是在change事件之后再进行信息同步
+<input type="text" v-model.lazy="value">
+<p>{{value}}</p>
+
+
+trim
+自动过滤用户输入的首空格字符，而中间的空格不会过滤
+<input type="text" v-model.trim="value">
+
+
+stop
+阻止了事件冒泡，相当于调用了event.stopPropagation方法
+<div @click="shout(2)">
+  <button @click.stop="shout(1)">ok</button>
+</div>
+//只输出1
+...
+
+
+
+`你有写过自定义指令吗？自定义指令的应用场景有哪些？`
+在vue中提供了一套为数据驱动视图更为方便的操作，这些操作被称为指令系统
+我们看到的v- 开头的行内属性，都是指令，不同的指令可以完成或实现不同的功能
+除了核心功能默认内置的指令 (v-model 和 v-show)，Vue 也允许注册自定义指令
+其实也就是为了整理数据，输出。又或者为
+
+
+// 注册一个全局自定义指令 `v-focus`
+Vue.directive('focus', {
+  // 当被绑定的元素插入到 DOM 中时……
+  inserted: function (el) {
+    // 聚焦元素
+    el.focus()  // 页面加载完成之后自动让输入框获取到焦点的小功能
+  }
+})
+
+
+应用场景
+
+防抖
+图片懒加载
+一键 Copy的功能
