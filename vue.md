@@ -28,6 +28,29 @@ defineProperty 实现的数据劫持，getter 收集依赖，setter 调用更新
 
 render -> vnode -> 新旧节点比较 -> patch->真实dom
 
+`diff 算法`
+两个特点：
+比较只会在同层级进行, 不会跨层级比较
+在diff比较的过程中，循环从两边向中间比较
+
+过程：
+其实就是在数据变化的时候 setter会去dep.notify里面找到相应的watcher，然后执行update，然后在这个过程中，生成新的虚拟节点，然后把新旧vnode放进 patch里面对比 （当数据发生改变时，订阅者watcher就会调用patch给真实的DOM打补丁
+通过isSameVnode进行判断，相同则调用patchVnode方法）
+- patch
+  没有新节点，直接触发旧节点的destory钩子
+  没有旧节点，说明是页面刚开始初始化的时候，此时，根本不需要比较了，直接全是新建，所以只调用 createElm
+  旧节点和新节点自身一样，通过 sameVnode 判断节点是否一样，一样时，直接调用 patchVnode 去处理这两个节点
+  旧节点和新节点自身不一样，当两个节点不一样的时候，直接创建新节点，删除旧节点
+- patchVnode 
+  找到对应的真实dom，称为el
+  如果都有都有文本节点且不相等，将el文本节点设置为Vnode的文本节点
+  如果oldVnode有子节点而VNode没有，则删除el子节点
+  如果oldVnode没有子节点而VNode有，则将VNode的子节点真实化后添加到el
+  如果两者都有子节点，则执行updateChildren函数比较子节点
+- updateChildren
+  设置新旧VNode的头尾指针
+  新旧头尾指针进行比较，循环向中间靠拢，根据情况调用patchVnode进行patch重复流程、调用createElem创建一个新节点，从哈希表寻找 key一致的VNode 节点再分情况操作
+
 
 
 `Proxy与Object.defineProperty的优劣对比?`
