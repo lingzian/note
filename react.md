@@ -179,4 +179,15 @@ Fiber就是通过对象记录组件上需要做或者已经完成的更新，
 
 
 
+`react Render`
+render函数里面可以编写JSX，转化成createElement这种形式，用于生成虚拟DOM，最终转化成真实DOM
+
+在 React 中，类组件只要执行了 setState 方法，就一定会触发 render 函数执行，函数组件使用useState更改状态不一定导致重新render
+
+组件的 props 改变了，不一定触发 render 函数的执行，但是如果 props 的值来自于父组件或者祖先组件的 state
+
+在这种情况下，父组件或者祖先组件的 state 发生了改变，就会导致子组件的重新渲染
+
+所以，一旦执行了setState就会执行render方法，useState 会判断当前值有无发生改变确定是否执行render方法，一旦父组件发生渲染，子组件也会渲染
+
 
