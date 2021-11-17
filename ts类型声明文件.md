@@ -129,3 +129,75 @@ implements，使用implements关键字的类将需要实现需要实现的类的
 `unknown, any的区别`
 任何类型的值都可以赋值给any 或者unknow
 any类型的值可以赋值给任何类型的变量;unknown类型的值只能给unknown和any类型的变量
+
+
+
+`说说你对 typescript 的理解？与 javascript 的区别？`
+TypeScript 是 JavaScript 的类型的超集
+其是一种静态类型检查的语言，提供了类型注解，在代码编译阶段就可以检查出数据类型的错误
+
+
+
+`说说你对 TypeScript 中高级类型的理解？有哪些？`
+除了string、number、boolean 这种基础类型外，在 typescript 类型声明中还存在一些高级的类型应用
+这些高级类型，是typescript为了保证语言的灵活性，所使用的一些语言特性。这些特性有助于我们应对复杂多变的开发场景
+- 交叉类型 （& 将多个类型合并为一个类型）
+- 联合类型 （| 联合类型的语法规则和逻辑 “或” 的符号一致，表示其类型为连接的多个类型中的任意一个）
+- 类型别名
+type some = boolean | string
+- 类型索引 （keyof 类似于 Object.keys ，用于获取一个接口中 Key 的联合类型。）
+interface Button {
+    type: string
+    text: string
+}
+type ButtonKeys = keyof Button
+// 等效于
+type ButtonKeys = "type" | "text"
+- 类型约束 （通过关键字 extend 进行约束，不同于在 class 后使用 extends 的继承作用，泛型内使用的主要作用是对泛型加以约束）
+type BaseType = string | number | boolean
+
+// 这里表示 copy 的参数
+// 只能是字符串、数字、布尔这几种基础类型
+function copy<T extends BaseType>(arg: T): T {
+  return arg
+}
+- 映射类型 （通过 in 关键字做类型的映射，遍历已有接口的 key 或者是遍历联合类型，如下例子：）
+type Readonly<T> = {
+    readonly [P in keyof T]: T[P];
+};
+
+interface Obj {
+  a: string
+  b: string
+}
+type ReadOnlyObj = Readonly<Obj>
+上述的结构，可以分成这些步骤：
+
+keyof T：通过类型索引 keyof 的得到联合类型 'a' | 'b'
+P in keyof T 等同于 p in 'a' | 'b'，相当于执行了一次 forEach 的逻辑，遍历 'a' | 'b'
+所以最终ReadOnlyObj的接口为下述：
+interface ReadOnlyObj {
+    readonly a: string;
+    readonly b: string;
+}
+- 条件类型（条件类型的语法规则和三元表达式一致，经常用于一些类型不确定的情况。）
+T extends U ? X : Y
+如果 T 是 U 的子集，就是类型 X，否则为类型 Y
+
+
+
+`说说你对 TypeScript 装饰器的理解？应用场景？`
+装饰器是一种特殊类型的声明，它能够被附加到类声明，方法， 访问符，属性或参数上是一种在不改变原类和使用继承的情况下，动态地扩展对象功能同样的，本质也不是什么高大上的结构，就是一个普通的函数.对原来功能进行扩展
+
+
+
+`说说对 TypeScript 中命名空间与模块的理解？区别？`
+- 模块
+TypeScript 与 ECMAScript 2015 一样，任何包含顶级 import 或者 export 的文件都被当成一个模块
+- 命名空间
+命名空间一个最明确的目的就是解决重名问题
+命名空间本质上是一个对象，作用是将一系列相关的全局变量组织到一个对象的属性
+- 区别
+命名空间是位于全局命名空间下的一个普通的带有名字的 JavaScript 对象，使用起来十分容易。但就像其它的全局命名空间污染一样，它很难去识别组件之间的依赖关系，尤其是在大型的应用中
+像命名空间一样，模块可以包含代码和声明。 不同的是模块可以声明它的依赖
+在正常的TS项目开发过程中并不建议用命名空间，但通常在通过 d.ts 文件标记 js 库类型的时候使用命名空间，主要作用是给编译器编写代码的时候参考使用

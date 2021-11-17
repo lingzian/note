@@ -20,13 +20,13 @@ React 性能优化思路
   }
   export default React.memo(MyComponent, areEqual);
 
-
+类组件使用shouldComponentUpdate对比state 和 props是否要重新渲染
 
 二、使用useMemo缓存大量的计算， useCallback存储要传给子组件的方法
 
 
 
-三、 少使用内联对象
+三、 少使用内联对象或者函数
 因为父组件更新，会重新创建新的对象，如果使用了，可以搭配react.memo使用
 
 四、调整CSS而不是强制组件加载和卸载

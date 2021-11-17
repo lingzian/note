@@ -1,4 +1,4 @@
-react 
+React，用于构建用户界面的 JavaScript 库，只提供了 UI 层面的解决方案
 `Context`: Context 设计用来解决祖先组件向后代组件传递数据的问题（prop drilling）。为跨层级的组件搭建一座桥梁。
 举个例子：用户登录之后，很多组件需要拿到用户相关信息，如果按照prop传递的方式获取，会变得异常繁琐，而且很难判断数据的真正来源
 有同学可能要问，使用redux不也可以解决这个问题吗？答案是：你说的对。不过redux本身就是通过context实现的。
@@ -191,3 +191,118 @@ render函数里面可以编写JSX，转化成createElement这种形式，用于�
 所以，一旦执行了setState就会执行render方法，useState 会判断当前值有无发生改变确定是否执行render方法，一旦父组件发生渲染，子组件也会渲染
 
 
+
+
+
+`说说React的事件机制？`
+React基于浏览器的事件机制自身实现了一套事件机制，包括事件注册、事件的合成、事件冒泡、事件派发等
+在React中这套事件机制被称之为合成事件
+合成事件是 React 模拟原生 DOM 事件所有能力的一个事件对象
+
+例如往节点绑定onclick const button = <button onClick={handleClick}>按钮命名</button>
+虽然onclick看似绑定到DOM元素上，但实际并不会把事件代理函数直接绑定到真实的节点上，而是把所有的事件绑定到结构的最外层，使用一个统一的事件去监听
+结论：
+React 所有事件都挂载在 document 对象上
+当真实 DOM 元素触发事件，会冒泡到 document 对象后，再处理 React 事件
+所以会先执行原生事件，然后处理 React 事件
+最后真正执行 document 上挂载的事件
+
+
+`React 中 setState 什么时候是同步的，什么时候是异步的？`
+说得通俗一点，setState是一个伪异步，或者可以称为defer，即延迟执行但本身还在一个事件循环，所以它的执行顺序在同步代码后、异步代码前。为什么会有这种现象？这就要说到react的合成事件了，react的批处理更新也得益于合成事件，可以试下脱离react事件，使用原生事件执行setState，你会得到同步的代码，
+结论就是，你每次setState，其实就是把这个状态暂存到一个队列里，等你这段代码执行完了，再一起执行你队列里的state（因为需要合并多个setState，所以等争端代码都执行完再setState, 在 React 的生命周期以及绑定的事件流中，所有的 setState 操作会先缓存到一个队列中，在整个事件结束后或者 mount 流程结束后，才会取出之前缓存的 setState 队列进行一次计算，触发 state 更新。只要我们跳出 React 的事件流或者生命周期，就能打破 React 对 setState 的掌控。最简单的方法，就是把 setState 放到 setTimeout 的匿名函数中。
+
+
+
+
+
+
+`React构建组件的方式有哪些？区别？`
+函数式创建
+通过 React.createClass 方法创建
+继承 React.Component 创建
+在React Hooks出来之前，函数式组件可以视为无状态组件，只负责根据传入的props来展示视图，不涉及对state状态的操作
+
+
+
+
+
+`React中组件之间如何通信？`
+父组件向子组件传递(props)
+子组件向父组件传递(props传递函数)
+兄弟组件之间的通信（通过父组件作为中间件，燃料两个组件通信。或者直接使用redux）
+父组件向后代组件传递(context)
+非关系组件传递
+
+
+
+
+`说说对React中类组件和函数组件的理解？有什么区别？`
+- 类组件，顾名思义，也就是通过使用ES6类的编写形式去编写组件，该类必须继承React.Component
+如果想要访问父组件传递过来的参数，可通过this.props的方式去访问
+在组件中必须实现render方法，在return中返回React对象，
+
+- 函数组件，顾名思义，就是通过函数编写的形式去实现一个React组件
+
+
+
+
+
+`说说对高阶组件的理解？应用场景?`
+- 高阶函数（Higher-order function），至少满足下列一个条件的函数
+  接受一个或多个函数作为输入 输出一个函数
+在React中，高阶组件即接受一个或多个组件作为参数并且返回加工过的新组件，本质也就是一个函数，并不是一个组件
+高阶组件能够提高代码的复用性和灵活性，在实际应用中，常常用于与核心业务无关但又在多个模块使用的功能，如权限控制、日志记录、数据校验、异常处理、统计上报等
+
+
+
+`说说react中引入css的方式有哪几种？区别？`
+在组件内直接使用 (style属性 驼峰写法)
+组件中引入 .css 文件
+组件中引入 .module.css 文件 （将css文件作为一个模块引入，这个模块中的所有css，只作用于当前组件。不会影响当前组件的后代组件这种方式是webpack特工的方案，只需要配置webpack配置文件中modules:true即可。所有的 className 都必须使用 {style.className} 的形式来编写）
+CSS in JS （是指一种模式，其中CSS由 JavaScript 生成而不是在外部文件中定义）
+
+
+
+
+`在react中组件间过渡动画如何实现？`
+CSSTransition：在前端开发中，结合 CSS 来完成过渡动画效果
+SwitchTransition：两个组件显示和隐藏切换时，使用该组件
+TransitionGroup：将多个动画组件包裹在其中，一般用于列表中元素的动画
+
+
+
+`说说React render方法的原理？在什么时候会被触发？`
+首先，render函数在react中有两种形式：
+在类组件中，指的是render方法
+在函数组件中，指的是函数组件本身
+jsx通过babel编译后就会转化成我们熟悉的js格式
+return (
+  React.createElement(
+    'div',
+    {
+      className : 'cn'
+    },
+    React.createElement(
+      Header,
+      null,
+      'hello'
+    ),
+    React.createElement(
+      'div',
+      null,
+      'start'
+    ),
+    'Right Reserve'
+  )
+)
+生成虚拟节点
+虚拟DOM会通过ReactDOM.render进行渲染成真实DOM
+
+- 触发时机
+类组件调用 setState 修改状态
+函数组件通过useState这种形式更新数据，当数组的值不发生改变了，就不会触发render
+
+组件的 props 改变了，不一定触发 render 函数的执行，但是如果 props 的值来自于父组件或者祖先组件的 state
+在这种情况下，父组件或者祖先组件的 state 发生了改变，就会导致子组件的重新渲染
+所以，一旦执行了setState就会执行render方法，useState 会判断当前值有无发生改变确定是否执行render方法，一旦父组件发生渲染，子组件也会渲染
