@@ -105,6 +105,88 @@ class Oberver {
 
 
 
+function debunce (fn,time) {
+  let timer = null
+  return (...arg) => {
+    let _this = this
+    if(timer) clearTimeout(timer) 
+    timer = setTimeout(() => {
+      fn.apply(_this,arg)
+    },time)
+  }
+}
+
+
+function throll (fn, time) {
+  let timer = null
+  return (...arg) => {
+    if(timer) return
+    let _this = this
+    timer = setTimeout(() => {
+      timer = null
+      fn.apply(_this,arg)
+    },time)
+  }
+}
+
+
+function deepClone(obj, map = new WeakMap()) {
+  if(typeof obj !== 'object') return obj 
+  if(obj instanceof Date) return new Date(obj)
+  if(obj instanceof RegExp) return new RegExp(obg)
+  if(map.has(obj)) {
+    return map.get(obj)
+  }
+  let newObj = new obj.constructor()
+  map.set(obj,newObj)
+  for(key in obj) {
+    newObj[key] = deepClone(obj[key])
+  }
+}
+
+
+// call
+Function.protorype.myCall = function(context,...args) {
+  if(typeof this !== 'function') {
+    throw new TypeError('类型错误')
+  }
+  context.fn = this
+  const res = context.fn(...args)
+  delete context.fn
+  return res
+}
+
+
+// apply
+Function.prototype.myApply = function(context, ...args) {
+  if(typeof this !== 'function') {
+    throw new TypeError('类型错误')
+  }
+  context.fn = this
+  const res = context.fn(args)
+  delete context.fn
+  return res
+}
+
+
+// bind
+Function.prototype.meBind = function(context,...args) {
+  if(typeof this !== 'function') {
+    throw new TypeError('类型错误')
+  }
+  let _this = this
+  return function f() {
+    if(this instanceof f) {
+      return _this(...args,...arguments)
+    }else {
+      return _this.apply(context,[...args,...arguments])
+    }
+    
+  }
+}
+
+
+
   </script>
 </body>
 </html>
