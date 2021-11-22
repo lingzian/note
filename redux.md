@@ -80,6 +80,13 @@ Action 只能是一个对象派发Store ，这个是在没有使用redux-thunk�
 利用react-thunk对D
 
 
+`redux-thunk`
+action 是一个函数 处理异步请求，然后请求完成再dispatch（action）修改store
+
+
+`redux-saga`
+action 还是一个对象， 可以在generator函数内执行异步操作，然后再put(action)改变store中的state
+
 
 
 dva 
