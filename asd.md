@@ -53,6 +53,7 @@ Response 返回处理简化
 请求缓存支持
 
 
+hox： 单例模式的一个自定义hook（各个页面引用统一model，并且能同步数据）
 dva:
 
 pixi:
