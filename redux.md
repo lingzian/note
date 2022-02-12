@@ -77,7 +77,8 @@ connect(
 副作用（使用中间件 解决异步问题 react-thunk）
 中间件的中间是指 Action 和 Store 之间的关系
 Action 只能是一个对象派发Store ，这个是在没有使用redux-thunk情况下；使用了redux-thunk ，Action 可以为一个函数 所以Dispatch方法就是Action和Store的中间件，就是对Dispatch方法的封装。
-利用react-thunk对D
+就是在提交action 但是又还没执行reducer之间做一层处理
+利用react-thunk对
 
 
 `redux-thunk`
@@ -121,3 +122,13 @@ why Mobx
 
 1 setSate 不是同步操作，当我们通过setstate修改state数据后，后面的逻辑立即取值是旧值，state的新值在下一次render时获取到。
 2 setState 不适合管理全局的状态。
+
+
+
+
+
+
+
+
+`为什么不使用一个全局变量替代redux？`
+React 的核心价值观是：状态决定渲染结果，因此只有状态改变了才需要重新渲染。如果你用一个非状态的全局变量来保存状态，那任何一个 React 组件都不会因为这个全局变量的人改变而重新渲染。在没有 hook 之前，Redux 通过 HOC 来解决这个问题。Redux 状态变化会触发 HOC 里的属性变化，因而触发被 HOC 包裹的原组件重新渲染。在有了 hook 之后，React 观察 hook 是否触发状态变化，Redux 通过 hook 来通知 React 状态变化。
