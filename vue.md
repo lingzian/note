@@ -74,13 +74,46 @@ Proxy返回的是一个新对象,我们可以只操作新的对象达到目的,�
 
 
 `Keep-alive`
+作用：缓存页面或者节点
+在使用 keep-alive 时，可以添加 prop 属性 include、exclude、max 允许组件有条件的缓存
+max: 可缓存最大数量，如果满了的话最久未使用的组件，从缓存中删除，然后新组件加入到最新的位置
+include：符合缓存的组件
+exclude： 不需要缓存的组件
+kepp-alive 实际是一个抽象组件，设置了abstract属性，简单来说组件不会生成虚拟节点，Vue就会跳过该组件实例。
+
+mounted中会对include exclude进行监听，实时更新或者删除缓存数据
+
+然后到render过程会返回keepalive里面组件的 VNode，并且检测是否需要缓存，不匹配就直接返回vnode,否侧就在缓存对象里面查找是否已经缓存过此组件，如果在就直接取出缓存，缓存的实例设置到当前的组件上，并且将该组件实例的keepAlive属性值设置为true。否则就存储改组件（键值对存放key为组件名称）
+
+最后就是到了patch阶段，createElement把虚拟节点转化为真实dom
+
+然后就到了render函数执行 会获取组件的虚拟dom  组件名与include不匹配或与exclude匹配都会直接退出并返回 VNode，不走缓存机制,
+如果匹配 并且命中缓存（第一次渲染肯定不命中），从 cache 中获取缓存的实例设置到当前的组件上，如果没命中缓存，将当前 VNode 缓存起来。
+
+缓存渲染：
+当切换到B组件，再切换回A组件时，A组件命中缓存被重新激活，keep-alive 重新渲染，再走一遍 render
+因为A组件在初始化已经缓存了，keep-alive 直接返回缓存好的A组件 VNode。VNode 准备好后，就会直接进入 patch 阶段。
+但是A组件这时将不再走 $mount 的逻辑，只调用 prepatch 更新实例属性。所以在缓存组件被激活时，不会执行 created 和 mounted 的生命周期函数。
+
+
+渲染：
+渲染过程最主要的两个过程就是 render 和 patch，在 render 之前还会有模板编译，render 函数就是模板编译后的产物，它负责构建 VNode 树，构建好的 VNode 会传递给 patch，patch 根据 VNode 的关系生成真实dom节点树
+
+
+
+
+
+正常生命周期：beforeRouteEnter --> created --> mounted --> updated -->destroyed
+使用keepAlive后生命周期：
+首次进入缓存页面：beforeRouteEnter --> created --> mounted --> activated --> deactivated
+再次进入缓存页面：beforeRouteEnter --> activated --> deactivated
+
+
+
 Vue 的缓存机制并不是直接存储 DOM 结构，而是将 DOM 节点抽象成了一个个 VNode节点。
 因此，Vue 的 keep-alive 缓存也是基于 VNode节点 而不是直接存储 DOM 节点。
 
 将需要缓存的VNode节点保存在this.cache中，在render时，如果VNode的name符合在缓存条件（可以用include以及exclude控制），则会从this.cache中取出之前缓存的VNode实例进行渲染。
-
-（keep-alive组件，让子组件在第一次渲染的时候将vnode和真实的elm进行了缓存。）
-（抽象组件， 没有真实的节点，它在组件渲染阶段不会去解析渲染成真实的dom节点，而只是作为中间的数据过渡层处理，在keep-alive中是对组件缓存的处理）
 
 `使用过 Vue SSR 吗？说说 SSR`
 SSR 也就是服务端渲染，也就是将 Vue 在客户端把标签渲染成 HTML 的工作放在服务端完成，然后再把 html 直接返回给客户端。
