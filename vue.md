@@ -8,7 +8,8 @@
 
 
 `什么是watcher`
-每个组件实例会有相应的 watcher 实例,会在组件渲染的过程中记录依赖的所有数据属性（进行依赖收集,还有 computed watcher,user watcher 实例）,之后依赖项被改动时,setter 方法会通知依赖与此 data 的 watcher 实例重新计算（派发更新）,从而使它关联的组件重新渲染。
+在组件渲染的过程中记录依赖的所有数据属性（进行依赖收集,还有 computed watcher,user watcher 实例）,之后依赖项被改动时,setter 方法会通知依赖与此 data 的 watcher 实例重新计算（派发更新）,从而使它关联的组件重新渲染。
+(三种watcher renderwatcher(多个，根据模板语法一个绑定一个数据就需要一个Watcher) computedwatcher watchwatcher)
 
 
 `响应式原理`
@@ -20,7 +21,10 @@ defineProperty 实现的数据劫持，getter 收集依赖，setter 调用更新
 - 虚拟dom本质上就是一个对dom描述的普通的JS对象在vue中，每个组件都有一个render函数，每个render函数都会返回一个虚拟dom树，这也就意味着每个组件都对应一棵虚拟DOM树
 
 - 为什么需要虚拟dom？
-在更新量大的时候直接操作dom带来大量的性能损耗，从而就会极大的降低渲染效率，用虚拟节点的话尽量减少dom操作会比较快
+相对比使用JS/JQuery时，不可避免的会大量操作DOM，使用虚拟dom对面新旧节点，不断为真实dom打补丁
+真实DOM在频繁操作时引发的回流重绘导致性能很低；
+虚拟DOM有效降低大面积的重绘与排版，因为是和真实DOM对比，更新差异部分，所以只渲染局部；
+虚拟DOM频繁修改，然后一次性对比差异并修改真实DOM，最后进行依次回流重绘，减少了真实DOM中多次回流重绘引起的性能损耗；
 
 - 虚拟dom是如何转换为真实dom的？（diff算法步骤）
 每个组件在编译的时候把模板转换为渲染函数，然后根据dom生成虚拟节点，然后再根据虚拟节点生成真实dom
@@ -50,7 +54,7 @@ render -> vnode -> 新旧节点比较 -> patch->真实dom
 - updateChildren
   设置新旧VNode的头尾指针
   新旧头尾指针进行比较，循环向中间靠拢，根据情况调用patchVnode进行patch重复流程、调用createElem创建一个新节点，从哈希表寻找 key一致的VNode 节点再分情况操作
-
+头头比较，尾尾比较，然后交叉比较
 
 
 `Proxy与Object.defineProperty的优劣对比?`
@@ -65,11 +69,18 @@ Proxy返回的是一个新对象,我们可以只操作新的对象达到目的,�
 如果是对象属性就重新object.defineProerty, 然后调用更新函数
 
 
+`Vue 组件 data 为什么必须是函数 ?`
+如果是对象的话，一个子组件被用在多处，一个data对象会被多处影响。但是如果使用函数返回一个对象的话，就相当于生成多个对象，互不干扰
+
+
 `Keep-alive`
 Vue 的缓存机制并不是直接存储 DOM 结构，而是将 DOM 节点抽象成了一个个 VNode节点。
 因此，Vue 的 keep-alive 缓存也是基于 VNode节点 而不是直接存储 DOM 节点。
 
 将需要缓存的VNode节点保存在this.cache中，在render时，如果VNode的name符合在缓存条件（可以用include以及exclude控制），则会从this.cache中取出之前缓存的VNode实例进行渲染。
+
+（keep-alive组件，让子组件在第一次渲染的时候将vnode和真实的elm进行了缓存。）
+（抽象组件， 没有真实的节点，它在组件渲染阶段不会去解析渲染成真实的dom节点，而只是作为中间的数据过渡层处理，在keep-alive中是对组件缓存的处理）
 
 `使用过 Vue SSR 吗？说说 SSR`
 SSR 也就是服务端渲染，也就是将 Vue 在客户端把标签渲染成 HTML 的工作放在服务端完成，然后再把 html 直接返回给客户端。
@@ -124,9 +135,7 @@ stop
 
 
 `你有写过自定义指令吗？自定义指令的应用场景有哪些？`
-在vue中提供了一套为数据驱动视图更为方便的操作，这些操作被称为指令系统
-我们看到的v- 开头的行内属性，都是指令，不同的指令可以完成或实现不同的功能
-除了核心功能默认内置的指令 (v-model 和 v-show)，Vue 也允许注册自定义指令
+指令本质上是装饰器，是 vue 对 HTML 元素的扩展，给 HTML 元素增加自定义功能。vue 编译 DOM 时，会找到指令对象，执行指令的相关方法。
 其实也就是为了整理数据，输出。又或者为
 
 
