@@ -8,7 +8,8 @@
 
 
 `什么是watcher`
-每个组件实例会有相应的 watcher 实例,会在组件渲染的过程中记录依赖的所有数据属性（进行依赖收集,还有 computed watcher,user watcher 实例）,之后依赖项被改动时,setter 方法会通知依赖与此 data 的 watcher 实例重新计算（派发更新）,从而使它关联的组件重新渲染。
+在组件渲染的过程中记录依赖的所有数据属性（进行依赖收集,还有 computed watcher,user watcher 实例）,之后依赖项被改动时,setter 方法会通知依赖与此 data 的 watcher 实例重新计算（派发更新）,从而使它关联的组件重新渲染。
+(三种watcher renderwatcher(多个，根据模板语法一个绑定一个数据就需要一个Watcher) computedwatcher watchwatcher)
 
 
 `响应式原理`
@@ -20,7 +21,10 @@ defineProperty 实现的数据劫持，getter 收集依赖，setter 调用更新
 - 虚拟dom本质上就是一个对dom描述的普通的JS对象在vue中，每个组件都有一个render函数，每个render函数都会返回一个虚拟dom树，这也就意味着每个组件都对应一棵虚拟DOM树
 
 - 为什么需要虚拟dom？
-在更新量大的时候直接操作dom带来大量的性能损耗，从而就会极大的降低渲染效率，用虚拟节点的话尽量减少dom操作会比较快
+相对比使用JS/JQuery时，不可避免的会大量操作DOM，使用虚拟dom对面新旧节点，不断为真实dom打补丁
+真实DOM在频繁操作时引发的回流重绘导致性能很低；
+虚拟DOM有效降低大面积的重绘与排版，因为是和真实DOM对比，更新差异部分，所以只渲染局部；
+虚拟DOM频繁修改，然后一次性对比差异并修改真实DOM，最后进行依次回流重绘，减少了真实DOM中多次回流重绘引起的性能损耗；
 
 - 虚拟dom是如何转换为真实dom的？（diff算法步骤）
 每个组件在编译的时候把模板转换为渲染函数，然后根据dom生成虚拟节点，然后再根据虚拟节点生成真实dom
@@ -50,7 +54,7 @@ render -> vnode -> 新旧节点比较 -> patch->真实dom
 - updateChildren
   设置新旧VNode的头尾指针
   新旧头尾指针进行比较，循环向中间靠拢，根据情况调用patchVnode进行patch重复流程、调用createElem创建一个新节点，从哈希表寻找 key一致的VNode 节点再分情况操作
-
+头头比较，尾尾比较，然后交叉比较
 
 
 `Proxy与Object.defineProperty的优劣对比?`
@@ -65,23 +69,36 @@ Proxy返回的是一个新对象,我们可以只操作新的对象达到目的,�
 如果是对象属性就重新object.defineProerty, 然后调用更新函数
 
 
+`Vue 组件 data 为什么必须是函数 ?`
+如果是对象的话，一个子组件被用在多处，一个data对象会被多处影响。但是如果使用函数返回一个对象的话，就相当于生成多个对象，互不干扰
+
+
 `Keep-alive`
 作用：缓存页面或者节点
 在使用 keep-alive 时，可以添加 prop 属性 include、exclude、max 允许组件有条件的缓存
 max: 可缓存最大数量，如果满了的话最久未使用的组件，从缓存中删除，然后新组件加入到最新的位置
 include：符合缓存的组件
 exclude： 不需要缓存的组件
-kepp-alive 实际是一个抽象组件，设置了abstract属性，简单来说组件不会生成虚拟节点，Vue就会跳过该组件实例。render 中最后会返回keepalive里面组件的 VNode
+kepp-alive 实际是一个抽象组件，设置了abstract属性，简单来说组件不会生成虚拟节点，Vue就会跳过该组件实例。
+
+mounted中会对include exclude进行监听，实时更新或者删除缓存数据
+
+然后到render过程会返回keepalive里面组件的 VNode，并且检测是否需要缓存，不匹配就直接返回vnode,否侧就在缓存对象里面查找是否已经缓存过此组件，如果在就直接取出缓存，缓存的实例设置到当前的组件上，并且将该组件实例的keepAlive属性值设置为true。否则就存储改组件（键值对存放key为组件名称）
+
+最后就是到了patch阶段，createElement把虚拟节点转化为真实dom
+
 然后就到了render函数执行 会获取组件的虚拟dom  组件名与include不匹配或与exclude匹配都会直接退出并返回 VNode，不走缓存机制,
 如果匹配 并且命中缓存（第一次渲染肯定不命中），从 cache 中获取缓存的实例设置到当前的组件上，如果没命中缓存，将当前 VNode 缓存起来。
+
+缓存渲染：
+当切换到B组件，再切换回A组件时，A组件命中缓存被重新激活，keep-alive 重新渲染，再走一遍 render
+因为A组件在初始化已经缓存了，keep-alive 直接返回缓存好的A组件 VNode。VNode 准备好后，就会直接进入 patch 阶段。
+但是A组件这时将不再走 $mount 的逻辑，只调用 prepatch 更新实例属性。所以在缓存组件被激活时，不会执行 created 和 mounted 的生命周期函数。
 
 
 渲染：
 渲染过程最主要的两个过程就是 render 和 patch，在 render 之前还会有模板编译，render 函数就是模板编译后的产物，它负责构建 VNode 树，构建好的 VNode 会传递给 patch，patch 根据 VNode 的关系生成真实dom节点树
-缓存渲染：
-当切换到B组件，再切换回A组件时，A组件命中缓存被重新激活
-因为A组件在初始化已经缓存了，keep-alive 直接返回缓存好的A组件 VNode。VNode 准备好后，又来到了 patch 阶段。
-但是A组件这时将不再走 $mount 的逻辑，只调用 prepatch 更新实例属性。所以在缓存组件被激活时，不会执行 created 和 mounted 的生命周期函数。
+
 
 
 
@@ -151,9 +168,7 @@ stop
 
 
 `你有写过自定义指令吗？自定义指令的应用场景有哪些？`
-在vue中提供了一套为数据驱动视图更为方便的操作，这些操作被称为指令系统
-我们看到的v- 开头的行内属性，都是指令，不同的指令可以完成或实现不同的功能
-除了核心功能默认内置的指令 (v-model 和 v-show)，Vue 也允许注册自定义指令
+指令本质上是装饰器，是 vue 对 HTML 元素的扩展，给 HTML 元素增加自定义功能。vue 编译 DOM 时，会找到指令对象，执行指令的相关方法。
 其实也就是为了整理数据，输出。又或者为
 
 
