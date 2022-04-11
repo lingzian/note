@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    function LazyMan(name) {
+      // 任务队列部分
+      const {
+        log
+      } = console;
+      const tasks = [() => log(`Hi! This is ${name}!`)];
+      const sleep = (time) =>
+        new Promise((r) =>
+          setTimeout(() => {
+            log(`Wake up after ${time}`);
+            r();
+          }, time * 1000)
+        );
+      const ctx = {
+        eat(food) {
+          tasks.push(() => log(`Eat ${food}~`));
+          return ctx;
+        },
+        sleep(time) {
+          tasks.push(() => sleep(time));
+          return ctx;
+        },
+        sleepFirst(time) {
+          tasks.unshift(() => sleep(time));
+          return ctx;
+        },
+      };
+
+      // 执行部分
+      const run = async () => {
+        for (const task of tasks) {
+          await task();
+        }
+      };
+      // 推入宏任务/微任务队列中执行
+      // setTimeout(run, 0);
+      // setImmediate(run);
+      process.nextTick(run);
+
+      return ctx;
+    }
+
+
+
+
+
+
+
+
+    LazyMan("Hank")
+    // 打印：Hi! This is Hank!
+
+    LazyMan("Hank").sleep(10).eat("dinner")
+    // 打印：Hi! This is Hank!
+    // 等待了 10 秒后
+    // 打印：Wake up after 10
+    // 打印：Eat dinner~
+
+    LazyMan("Hank").eat("dinner").eat("supper")
+    // 打印：Hi This is Hank!
+    // 打印：Eat dinner~
+    // 打印：Eat supper~
+
+    LazyMan("Hank").sleepFirst(5).eat("supper")
+    // 等待了 5 秒后
+    // 打印：Wake up after 5
+    // 打印：Hi This is Hank!
+    // 打印：Eat supper
+
+    LazyMan("Hank").eat("supper").sleepFirst(5)
+    // 等待了 5 秒后
+    // 打印：Wake up after 5
+    // 打印：Hi This is Hank!
+    // 打印：Eat supper
+  </script>
+</body>
+
+</html>
